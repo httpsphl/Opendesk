@@ -1,17 +1,17 @@
 # OpenDesk
 
-Portal de chamados open source construído com Next.js 14 App Router, TypeScript, Prisma e Auth.js Credentials.
+Open source ticket portal built with Next.js 14 App Router, TypeScript, Prisma, and Auth.js Credentials.
 
-## Segurança local
+## Local security
 
-Nunca publique `.env`, tokens, senhas ou dumps do banco. O arquivo `.gitignore` já exclui os arquivos de ambiente locais. Use `.env.example` somente como referência e gere valores próprios para cada ambiente.
+Never publish `.env` files, tokens, passwords, or database dumps. The `.gitignore` file already excludes local environment files. Use `.env.example` only as a reference and generate separate values for each environment.
 
-## Rodando localmente
+## Running locally
 
-1. Instale Node.js 20+ e tenha um PostgreSQL disponível.
-2. Copie `.env.example` para `.env` e preencha `DATABASE_URL`, `AUTH_SECRET`, `DEFAULT_AGENT_EMAIL` e `SEED_DEMO_PASSWORD`.
-3. Use uma senha local forte com pelo menos 12 caracteres em `SEED_DEMO_PASSWORD`.
-4. Instale e gere o Prisma:
+1. Install Node.js 20+ and make sure PostgreSQL is available.
+2. Copy `.env.example` to `.env` and fill in `DATABASE_URL`, `AUTH_SECRET`, `DEFAULT_AGENT_EMAIL`, and `SEED_DEMO_PASSWORD`.
+3. Use a local password with at least 12 characters for `SEED_DEMO_PASSWORD`.
+4. Install dependencies and set up Prisma:
 
 ```bash
 npm install
@@ -21,28 +21,28 @@ npm run prisma:seed
 npm run dev
 ```
 
-Abra `http://localhost:3000`. O seed cria `cliente@opendesk.local` e `ana@opendesk.local`, usando a senha definida somente no seu `.env` em `SEED_DEMO_PASSWORD`. Não reutilize essa senha em produção.
+Open `http://localhost:3000`. The seed creates `cliente@opendesk.local` and `ana@opendesk.local`, using the password defined only in your local `.env` as `SEED_DEMO_PASSWORD`. Do not reuse this password in production.
 
-## Funcionalidades
+## Features
 
-- Cadastro e login com Auth.js Credentials e bcrypt.
-- Middleware protege `/dashboard`.
-- Chamados, mensagens, status e métricas com autorização por papel.
-- Upload direto para Vercel Blob com token server-side, limite de 15 MB e tipos de imagem, PDF e Office.
-- Layout responsivo com painel de detalhes que se torna uma seção móvel.
+- Registration and login with Auth.js Credentials and bcrypt.
+- Middleware protection for `/dashboard`.
+- Ticket, message, status, and metrics workflows with role-based authorization.
+- Direct Vercel Blob uploads with server-side token handling, a 15 MB limit, and image, PDF, and Office file support.
+- Responsive layout with a details panel that becomes a mobile section.
 
-## Deploy na Vercel
+## Deploying to Vercel
 
-Crie um projeto Vercel conectado ao repositório e configure `DATABASE_URL`, `AUTH_SECRET`, `NEXTAUTH_URL`, `BLOB_READ_WRITE_TOKEN` e `DEFAULT_AGENT_EMAIL` nas variáveis de ambiente. Use um PostgreSQL gerenciado (Vercel Postgres, Neon ou Supabase), rode as migrations com `npx prisma migrate deploy` e faça o deploy. O projeto usa apenas APIs serverless compatíveis com a Vercel.
+Create a Vercel project connected to the repository and configure `DATABASE_URL`, `AUTH_SECRET`, `NEXTAUTH_URL`, `BLOB_READ_WRITE_TOKEN`, and `DEFAULT_AGENT_EMAIL` as environment variables. Use a managed PostgreSQL provider such as Vercel Postgres, Neon, or Supabase. Run migrations with `npx prisma migrate deploy`, then deploy the project. The application uses only serverless-compatible APIs.
 
-Não execute o seed com credenciais demo em produção. Crie o usuário AGENT diretamente no banco ou execute o seed apenas com uma `SEED_DEMO_PASSWORD` temporária e remova essa variável depois.
+Do not run the seed with demo credentials in production. Create the `AGENT` user directly in the database, or run the seed with a temporary `SEED_DEMO_PASSWORD` and remove the variable afterward.
 
-## Avisos de produção
+## Production notes
 
-- Os arquivos enviados ao Vercel Blob usam URLs públicas nesta versão. Não envie documentos confidenciais sem tornar o bucket privado e implementar autorização de download.
-- Para uso público, adicione rate limiting, verificação de e-mail, proteção contra spam e monitoramento.
-- Se um secret for exposto, revogue-o imediatamente e gere outro. Alterar o nome no código não invalida o valor comprometido.
+- Files uploaded to Vercel Blob use public URLs in this version. Do not upload confidential documents without making the bucket private and implementing authorized downloads.
+- For public use, add rate limiting, email verification, spam protection, and monitoring.
+- If a secret is exposed, revoke it immediately and generate a replacement. Renaming a variable in the code does not invalidate a compromised value.
 
-## Licença
+## License
 
-Distribuído sob a licença MIT. Consulte [LICENSE](./LICENSE).
+Distributed under the MIT License. See [LICENSE](./LICENSE).
