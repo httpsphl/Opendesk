@@ -1,49 +1,108 @@
+<div align="center">
+
+<img src="app/icon.svg" width="64" height="64" alt="OpenDesk" />
+
 # OpenDesk
 
-Open source ticket portal built with Next.js 14 App Router, TypeScript, Prisma, and Auth.js Credentials.
+**A modern, open source ticket portal for teams that support people.**
 
-## Local security
+Next.js 14 · TypeScript · Prisma · Auth.js · Tailwind CSS
 
-Never publish `.env` files, tokens, passwords, or database dumps. The `.gitignore` file already excludes local environment files. Use `.env.example` only as a reference and generate separate values for each environment.
+[![License: MIT](https://img.shields.io/badge/license-MIT-38bdf8.svg)](./LICENSE)
+[![Next.js](https://img.shields.io/badge/Next.js-14-4f46e5?logo=next.js&logoColor=white)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-4f46e5?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Prisma](https://img.shields.io/badge/Prisma-5-4f46e5?logo=prisma&logoColor=white)](https://www.prisma.io)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-38bdf8.svg)](#contributing)
 
-## Running locally
+[Features](#features) · [Quickstart](#quickstart) · [Configuration](#configuration) · [Deployment](#deploying-to-vercel) · [Tech stack](#tech-stack) · [Contributing](#contributing)
 
-1. Install Node.js 20+ and make sure PostgreSQL is available.
-2. Copy `.env.example` to `.env` and fill in `DATABASE_URL`, `AUTH_SECRET`, `DEFAULT_AGENT_EMAIL`, and `SEED_DEMO_PASSWORD`. `NEXTAUTH_SECRET` is supported as a legacy alias, but use `AUTH_SECRET` for new deployments.
-3. Use a local password with at least 12 characters for `SEED_DEMO_PASSWORD`.
-4. Install dependencies and set up Prisma:
+</div>
 
-```bash
-npm install
-npx prisma generate
-npx prisma migrate dev --name init
-npm run prisma:seed
-npm run dev
-```
+---
 
-Open `http://localhost:3000`. The seed creates `cliente@opendesk.local` and `ana@opendesk.local`, using the password defined only in your local `.env` as `SEED_DEMO_PASSWORD`. Do not reuse this password in production.
+OpenDesk is a self-hostable support desk: customers open tickets, agents triage and respond, and everyone gets a clear, real-time view of what's open, in progress, or resolved. It ships with authentication, role-based dashboards, file attachments, metrics, and a light/dark UI out of the box — ready to fork, brand, and deploy as your own.
 
 ## Features
 
-- Registration and login with Auth.js Credentials and bcrypt.
-- Middleware protection for `/dashboard`.
-- Ticket, message, status, and metrics workflows with role-based authorization.
-- Direct Vercel Blob uploads with server-side token handling, a 15 MB limit, and image, PDF, and Office file support.
-- Responsive layout with a details panel that becomes a mobile section.
+- 🔐 **Authentication** — email/password login and signup via Auth.js Credentials, with bcrypt-hashed passwords and a password-visibility toggle.
+- 🎫 **Ticket workflows** — customers open tickets with a subject, category, priority, and description; agents update status (`OPEN` → `IN_PROGRESS` → `WAITING_FOR_USER` → `RESOLVED`/`CLOSED`) and reply in a threaded conversation.
+- 👥 **Role-based access** — `USER`, `AGENT`, and `ADMIN` roles gate what each person can see and do, enforced at the data layer.
+- 📎 **File attachments** — direct-to-Vercel-Blob uploads (up to 15 MB) with inline previews for images and video, and permission-checked deletion.
+- 📊 **Metrics dashboard** — open/closed volume over time, average resolution time, and per-agent workload, powered by Recharts.
+- 🎨 **Polished UI** — a cohesive design system with a gradient brand palette, Space Grotesk + Plus Jakarta Sans typography, subtle entrance animations, and full light/dark theming via `next-themes`.
+- 📱 **Responsive by default** — the ticket detail view collapses its side panel into a mobile-friendly section; every page works from phone to desktop.
+- ⚡ **Serverless-ready** — built entirely on APIs compatible with Vercel's edge and serverless runtimes.
+
+## Tech stack
+
+| Layer | Choice |
+| --- | --- |
+| Framework | [Next.js 14](https://nextjs.org) (App Router) |
+| Language | [TypeScript](https://www.typescriptlang.org) |
+| Database ORM | [Prisma](https://www.prisma.io) + PostgreSQL |
+| Auth | [Auth.js](https://authjs.dev) (Credentials provider) |
+| Styling | [Tailwind CSS](https://tailwindcss.com) |
+| File storage | [Vercel Blob](https://vercel.com/docs/storage/vercel-blob) |
+| Charts | [Recharts](https://recharts.org) |
+| Icons | [Phosphor Icons](https://phosphoricons.com) |
+
+## Quickstart
+
+**Prerequisites:** Node.js 20+ and a PostgreSQL database.
+
+```bash
+# 1. Clone and install
+git clone https://github.com/httpsphl/Opendesk.git
+cd Opendesk
+npm install
+
+# 2. Configure environment
+cp .env.example .env
+# fill in DATABASE_URL, AUTH_SECRET, DEFAULT_AGENT_EMAIL, SEED_DEMO_PASSWORD
+
+# 3. Set up the database
+npx prisma generate
+npx prisma migrate dev --name init
+npm run prisma:seed
+
+# 4. Run it
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000). The seed creates two demo accounts — `cliente@opendesk.local` (customer) and `ana@opendesk.local` (agent) — both using the password you set in `SEED_DEMO_PASSWORD`.
+
+> **Never reuse the seed password, or commit `.env`, tokens, or database dumps.** `.gitignore` already excludes local env files; treat `.env.example` as a reference only.
+
+## Configuration
+
+| Variable | Required | Notes |
+| --- | --- | --- |
+| `DATABASE_URL` | ✅ | PostgreSQL connection string. |
+| `AUTH_SECRET` | ✅ | Long random value; must be set for every environment. `NEXTAUTH_SECRET` works as a legacy alias. |
+| `NEXTAUTH_URL` | ✅ (prod) | The deployed URL, e.g. `https://your-app.vercel.app`. |
+| `DEFAULT_AGENT_EMAIL` | ✅ | Email of the agent auto-assigned to new tickets. |
+| `SEED_DEMO_PASSWORD` | dev only | Password for the seeded demo accounts — 12+ characters, never used in production. |
+| `BLOB_READ_WRITE_TOKEN` | for attachments | From a **public** Vercel Blob store (starts with `vercel_blob_rw_`). Without it, uploads are disabled gracefully. |
 
 ## Deploying to Vercel
 
-Create a Vercel project connected to the repository and configure `DATABASE_URL`, `AUTH_SECRET`, `NEXTAUTH_URL`, `BLOB_READ_WRITE_TOKEN`, and `DEFAULT_AGENT_EMAIL` as environment variables. `AUTH_SECRET` must be a long random value and must be configured for the same Vercel environment as the deployment. Use a managed PostgreSQL provider such as Vercel Postgres, Neon, or Supabase. Run migrations with `npx prisma migrate deploy`, then deploy the project. The application uses only serverless-compatible APIs.
+1. Import the repository into a new Vercel project.
+2. Provision PostgreSQL (Vercel Postgres, Neon, Supabase, or any managed provider) and set `DATABASE_URL`.
+3. Set `AUTH_SECRET`, `NEXTAUTH_URL`, and `DEFAULT_AGENT_EMAIL` for the deployment's environment.
+4. Create a **public** Vercel Blob store under the project's Storage tab and add its `BLOB_READ_WRITE_TOKEN` to enable attachments — a **private** store will reject uploads, since the app expects publicly accessible file URLs.
+5. Run `npx prisma migrate deploy` against your production database, then deploy.
 
-To enable attachments, create a Vercel Blob store in the project's Storage section and add its generated `BLOB_READ_WRITE_TOKEN` (the value starts with `vercel_blob_rw_`) to the same Vercel environment as the deployment. Do not use a database or storage connection string as this value. Redeploy after changing this variable.
-
-Do not run the seed with demo credentials in production. Create the `AGENT` user directly in the database, or run the seed with a temporary `SEED_DEMO_PASSWORD` and remove the variable afterward.
+Don't run the seed with demo credentials in production — create the first `AGENT` user directly in the database instead, or seed once with a temporary `SEED_DEMO_PASSWORD` and remove it afterward.
 
 ## Production notes
 
-- Files uploaded to Vercel Blob use public URLs in this version. Do not upload confidential documents without making the bucket private and implementing authorized downloads.
-- For public use, add rate limiting, email verification, spam protection, and monitoring.
-- If a secret is exposed, revoke it immediately and generate a replacement. Renaming a variable in the code does not invalidate a compromised value.
+- Attachments are stored as **public** Vercel Blob URLs in this version. If you need confidential uploads, switch the store to private and add authorized, signed downloads.
+- For public-facing deployments, add rate limiting, email verification, and abuse monitoring — none are included by default.
+- If any secret leaks, rotate it immediately. Renaming an environment variable does not invalidate a compromised value.
+
+## Contributing
+
+Issues and pull requests are welcome. For anything non-trivial, please open an issue first to discuss the change. Run `npx tsc --noEmit` and `npm run build` before submitting a PR.
 
 ## License
 
