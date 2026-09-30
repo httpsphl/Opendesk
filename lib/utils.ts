@@ -22,3 +22,11 @@ export const statusLabels = {
 } as const;
 
 export const priorityLabels = { LOW: "Baixa", MEDIUM: "Média", HIGH: "Alta", URGENT: "Urgente" } as const;
+
+export function isImageFile(mimeType: string) {
+  return mimeType.startsWith("image/");
+}
+
+export function isVideoFile(mimeType: string) {
+  return mimeType.startsWith("video/");
+}
