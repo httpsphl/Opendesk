@@ -9,7 +9,7 @@ Never publish `.env` files, tokens, passwords, or database dumps. The `.gitignor
 ## Running locally
 
 1. Install Node.js 20+ and make sure PostgreSQL is available.
-2. Copy `.env.example` to `.env` and fill in `DATABASE_URL`, `AUTH_SECRET`, `DEFAULT_AGENT_EMAIL`, and `SEED_DEMO_PASSWORD`.
+2. Copy `.env.example` to `.env` and fill in `DATABASE_URL`, `AUTH_SECRET`, `DEFAULT_AGENT_EMAIL`, and `SEED_DEMO_PASSWORD`. `NEXTAUTH_SECRET` is supported as a legacy alias, but use `AUTH_SECRET` for new deployments.
 3. Use a local password with at least 12 characters for `SEED_DEMO_PASSWORD`.
 4. Install dependencies and set up Prisma:
 
@@ -33,7 +33,9 @@ Open `http://localhost:3000`. The seed creates `cliente@opendesk.local` and `ana
 
 ## Deploying to Vercel
 
-Create a Vercel project connected to the repository and configure `DATABASE_URL`, `AUTH_SECRET`, `NEXTAUTH_URL`, `BLOB_READ_WRITE_TOKEN`, and `DEFAULT_AGENT_EMAIL` as environment variables. Use a managed PostgreSQL provider such as Vercel Postgres, Neon, or Supabase. Run migrations with `npx prisma migrate deploy`, then deploy the project. The application uses only serverless-compatible APIs.
+Create a Vercel project connected to the repository and configure `DATABASE_URL`, `AUTH_SECRET`, `NEXTAUTH_URL`, `BLOB_READ_WRITE_TOKEN`, and `DEFAULT_AGENT_EMAIL` as environment variables. `AUTH_SECRET` must be a long random value and must be configured for the same Vercel environment as the deployment. Use a managed PostgreSQL provider such as Vercel Postgres, Neon, or Supabase. Run migrations with `npx prisma migrate deploy`, then deploy the project. The application uses only serverless-compatible APIs.
+
+To enable attachments, create a Vercel Blob store in the project's Storage section and add its generated `BLOB_READ_WRITE_TOKEN` (the value starts with `vercel_blob_rw_`) to the same Vercel environment as the deployment. Do not use a database or storage connection string as this value. Redeploy after changing this variable.
 
 Do not run the seed with demo credentials in production. Create the `AGENT` user directly in the database, or run the seed with a temporary `SEED_DEMO_PASSWORD` and remove the variable afterward.
 

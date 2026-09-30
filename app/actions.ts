@@ -6,6 +6,7 @@ import { messageSchema, registerSchema, ticketSchema } from "@/lib/validations";
 import { Role, TicketStatus, MessageAuthorType } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
+import { del } from "@vercel/blob";
 
 export type ActionState = { error?: string; success?: string };
 
@@ -52,6 +53,24 @@ export async function addMessageAction(ticketId: string, _: ActionState, formDat
   }
   revalidatePath(`/dashboard/chamados/${ticketId}`);
   return { success: "Mensagem enviada." };
+}
+
+export async function deleteAttachmentAction(attachmentId: string): Promise<ActionState> {
+  const session = await auth();
+  if (!session?.user?.id) return { error: "Faça login para continuar." };
+  const attachment = await prisma.attachment.findUnique({
+    where: { id: attachmentId },
+    select: { url: true, ticketId: true, uploadedById: true, ticket: { select: { requesterId: true } } }
+  });
+  if (!attachment) return { error: "Arquivo não encontrado." };
+  const isOwner = attachment.uploadedById === session.user.id;
+  const isRequester = attachment.ticket?.requesterId === session.user.id;
+  const isStaff = session.user.role !== "USER";
+  if (!isOwner && !isRequester && !isStaff) return { error: "Sem permissão para remover este arquivo." };
+  await del(attachment.url);
+  await prisma.attachment.delete({ where: { id: attachmentId } });
+  if (attachment.ticketId) revalidatePath(`/dashboard/chamados/${attachment.ticketId}`);
+  return { success: "Arquivo removido." };
 }
 
 export async function updateTicketStatus(ticketId: string, status: TicketStatus) {
